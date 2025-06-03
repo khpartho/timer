@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Aesthetic Countdown Clock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #e6e6fa; /* Light Lavender from your image */
+            --main-text-color: #333; /* Darker for readability */
+            --header-text-color: #8a2be2; /* BlueViolet for header */
+            --button-base-color: #8a2be2; /* BlueViolet for buttons */
+            --button-text-color: #fff;
+            --button-hover-color: #6a0dad; /* Darker purple on hover */
+            --timer-numbers-color: black; /* Specific black for numbers */
+
+            /* Glossy specific colors/shadows for depth (optional, can be removed for flatter look) */
+            --glossy-light: rgba(255, 255, 255, 0.4); /* Top-left highlight */
+            --glossy-dark: rgba(0, 0, 0, 0.2); /* Bottom-right shadow */
+            --inner-shadow-dark: rgba(0, 0, 0, 0.2);
+            --inner-shadow-light: rgba(255, 255, 255, 0.2);
+            --deep-shadow: rgba(0, 0, 0, 0.3); /* For the 'back' shadow */
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            font-family:'Proxima Nova', Proxima Nova;
+            color: var(--main-text-color);
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-image: radial-gradient(circle at center, #f0f0ff, var(--bg-color)); /* Subtle background gradient */
+        }
+
+        .countdown-container {
+            background-color: rgba(255, 255, 255, 0.7); /* Slightly translucent white background for the container itself */
+            backdrop-filter: blur(5px); /* Soft blur effect */
+            border-radius: 20px;
+            padding: 40px 60px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 15px 40px var(--deep-shadow); /* Layered shadows for depth */
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Soft border */
+            animation: fadeIn 1.5s ease-out;
+            width: 100%;
+            max-width: 700px; /* Adjust max width as needed */
+            box-sizing: border-box;
+            position: relative; /* For pseudo-elements or other positioning */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: var(--header-text-color);
+            text-shadow: 0 0 8px rgba(138, 43, 226, 0.4); /* Subtle glow */
+            font-weight: 700;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            margin-bottom: 40px; /* Space below the timer */
+        }
+
+        .time-segment {
+            background: linear-gradient(145deg, rgba(255,255,255,0.8), rgba(240,240,255,0.7)); /* Soft gradient for segment background */
+            border-radius: 15px; /* Slightly more rounded */
+            padding: 20px 25px;
+            min-width: 120px;
+            box-shadow: inset 2px 2px 5px var(--inner-shadow-dark), inset -2px -2px 5px var(--inner-shadow-light),
+                        3px 3px 8px var(--glossy-dark); /* Inner and outer shadow */
+            border: 1px solid rgba(255, 255, 255, 0.6); /* Defined border */
+            position: relative;
+            overflow: hidden;
+            /* No pulse animation as per image look */
+        }
+
+        /* Glossy highlight effect for segments */
+        .time-segment::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to top left,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%, /* Stronger highlight */
+                rgba(255, 255, 255, 0) 100%
+            );
+            border-radius: 15px;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .value {
+            font-size: 4.5em;
+            font-weight: 900; /* Extra bold */
+            color: var(--timer-numbers-color); /* Black numbers */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Subtle text shadow for depth */
+            position: relative;
+            z-index: 2; /* Ensure number is above glossy effect */
+        }
+
+        .label {
+            font-size: 1.2em;
+            margin-top: 5px;
+            color: var(--main-text-color);
+            position: relative;
+            z-index: 2;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .input-container {
+            margin-top: 40px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px; /* Space between inputs and buttons */
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-group label {
+            margin-bottom: 5px;
+            font-size: 1em;
+            color: var(--main-text-color);
+            font-weight: 700;
+        }
+
+        .input-group input {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: #f0f0f0; /* Light background for inputs */
+            color: var(--main-text-color);
+            font-family: 'Proxima Nova', Proxima Nova;
+            font-size: 1.1em;
+            width: 80px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 1px 1px 3px var(--inner-shadow-dark), inset -1px -1px 3px var(--inner-shadow-light); /* Inner shadow for inputs */
+        }
+
+        .input-group input:focus {
+            border-color: var(--button-base-color);
+            box-shadow: inset 1px 1px 3px var(--inner-shadow-dark), inset -1px -1px 3px var(--inner-shadow-light),
+                        0 0 0 3px rgba(138, 43, 226, 0.3); /* Purple glow on focus */
+        }
+
+        .btn-start, .btn-reset {
+            padding: 12px 25px;
+            border-radius: 10px; /* Rounded buttons */
+            border: none;
+            font-family: 'Proxima Nova', Proxima Nova;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px; /* Space between buttons */
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--button-text-color);
+            background: linear-gradient(145deg, var(--button-base-color), var(--button-hover-color)); /* Glossy gradient */
+            box-shadow: 3px 3px 8px var(--glossy-dark), -3px -3px 8px var(--glossy-light); /* Outer shadow */
+            position: relative; /* For glossy highlight */
+            overflow: hidden;
+        }
+
+        .btn-start:hover, .btn-reset:hover {
+            background: linear-gradient(145deg, var(--button-hover-color), var(--button-base-color)); /* Reverse gradient on hover */
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 12px var(--glossy-dark), -5px -5px 12px var(--glossy-light); /* More pronounced shadow */
+        }
+
+        .btn-start:active, .btn-reset:active {
+            transform: translateY(0);
+            box-shadow: inset 2px 2px 5px var(--glossy-dark), inset -2px -2px 5px var(--glossy-light); /* Press in effect */
+        }
+
+        /* Glossy highlight for buttons */
+        .btn-start::before, .btn-reset::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to top left,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            border-radius: 10px;
+            opacity: 0.6;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .btn-start:hover::before, .btn-reset:hover::before {
+            opacity: 0.8;
+        }
+
+
+        @media (max-width: 768px) {
+            .countdown-container {
+                padding: 30px 40px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .countdown {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .time-segment {
+                min-width: unset;
+                width: 180px;
+                margin: 0 auto;
+                padding: 15px 20px;
+            }
+            .value {
+                font-size: 3.5em;
+            }
+            .label {
+                font-size: 1em;
+            }
+            .input-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            .btn-start, .btn-reset {
+                width: 80%;
+                margin: 10px auto;
+            }
+            .btn-reset {
+                margin-left: auto; /* Reset margin-left for better stacking */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown-container">
+        <h1>Reverse Countdown</h1>
+        <div class="countdown">
+            <div class="time-segment">
+                <div class="value" id="hours">00</div>
+                <div class="label">Hours</div>
+            </div>
+            <div class="time-segment">
+                <div class="value" id="minutes">00</div>
+                <div class="label">Minutes</div>
+            </div>
+            <div class="time-segment">
+                <div class="value" id="seconds">00</div>
+                <div class="label">Seconds</div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-group">
+                <label for="inputHours">Hours:</label>
+                <input type="number" id="inputHours" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label for="inputMinutes">Minutes:</label>
+                <input type="number" id="inputMinutes" min="0" max="59" value="0">
+            </div>
+            <div class="input-group">
+                <label for="inputSeconds">Seconds:</label>
+                <input type="number" id="inputSeconds" min="0" max="59" value="0">
+            </div>
+        </div>
+
+        <div>
+            <button class="btn-start" id="startButton">Start Countdown</button>
+            <button class="btn-reset" id="resetButton">Reset</button>
+      </div>
+      
+   <footer><br>
+  <div class="copyright">
+ <div class="container">
+                <p>&copy; 2025. All Rights Reserved. Powered by KH Partho.</p>
+  </div>
+    </div>
+    </footer> 
+      
+  </div>
+  
+  <script>
+        const hoursDisplay = document.getElementById('hours');
+        const minutesDisplay = document.getElementById('minutes');
+        const secondsDisplay = document.getElementById('seconds');
+
+        const inputHours = document.getElementById('inputHours');
+        const inputMinutes = document.getElementById('inputMinutes');
+        const inputSeconds = document.getElementById('inputSeconds');
+
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+
+        let countdownInterval;
+        let totalSeconds;
+
+        function formatTime(time) {
+            return time < 10 ? `0${time}` : time;
+        }
+
+        function updateCountdown() {
+            if (totalSeconds < 0) {
+                clearInterval(countdownInterval);
+                alert("Countdown Finished!");
+                resetClock();
+                return;
+            }
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            hoursDisplay.textContent = formatTime(hours);
+            minutesDisplay.textContent = formatTime(minutes);
+            secondsDisplay.textContent = formatTime(seconds);
+
+            totalSeconds--;
+        }
+
+        function startCountdown() {
+            clearInterval(countdownInterval); // Clear any existing interval
+
+            const h = parseInt(inputHours.value) || 0;
+            const m = parseInt(inputMinutes.value) || 0;
+            const s = parseInt(inputSeconds.value) || 0;
+
+            totalSeconds = (h * 3600) + (m * 60) + s;
+
+            if (totalSeconds <= 0) {
+                alert("Please enter a valid time to start the countdown.");
+                return;
+            }
+
+            updateCountdown(); // Call immediately to show initial time
+            countdownInterval = setInterval(updateCountdown, 1000);
+            startButton.textContent = "Running...";
+            startButton.disabled = true;
+            // Disable inputs once countdown starts
+            inputHours.disabled = true;
+            inputMinutes.disabled = true;
+            inputSeconds.disabled = true;
+        }
+
+        function resetClock() {
+            clearInterval(countdownInterval);
+            hoursDisplay.textContent = '00';
+            minutesDisplay.textContent = '00';
+            secondsDisplay.textContent = '00';
+            inputHours.value = '0';
+            inputMinutes.value = '0';
+            inputSeconds.value = '0';
+            startButton.textContent = "Start Countdown";
+            startButton.disabled = false;
+            // Enable inputs on reset
+            inputHours.disabled = false;
+            inputMinutes.disabled = false;
+            inputSeconds.disabled = false;
+        }
+
+        startButton.addEventListener('click', startCountdown);
+        resetButton.addEventListener('click', resetClock);
+
+        // Initial reset on page load
+        resetClock();
+      
+    </script>
+</body>
+</html>
